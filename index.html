@@ -1,82 +1,109 @@
 <!doctype html>
 <html lang="ko">
 <head>
-<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <title>연애온도 · 단비마음</title>
 <style>
 :root{--p:#ff4f9a;--p2:#8c5bff;--cyan:#46c8ff;--bg:#070b18;--line:#2b3152;--txt:#f5f3ff;--muted:#aaa5bc;--card:#10162a}
-*{box-sizing:border-box}body{margin:0;background:radial-gradient(circle at top,#251037 0,#0b1020 30%,#070b18 70%);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","Noto Sans KR",sans-serif;color:var(--txt)}
-.app{max-width:540px;margin:auto;min-height:100vh;padding:16px 15px 100px}.brand{font-weight:900;font-size:25px}.brand b{color:var(--p)}
-header{display:flex;justify-content:space-between;align-items:center;margin:4px 0 15px}.chip{font-size:11px;border:1px solid var(--line);padding:7px 9px;border-radius:999px;background:#10162a;color:var(--muted)}
+*{box-sizing:border-box}
+body{margin:0;background:radial-gradient(circle at top,#251037 0,#0b1020 30%,#070b18 70%);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","Noto Sans KR",sans-serif;color:var(--txt)}
+.app{max-width:540px;margin:auto;min-height:100vh;padding:16px 15px 100px}
+.brand{font-weight:900;font-size:25px}.brand b{color:var(--p)}
+header{display:flex;justify-content:space-between;align-items:center;margin:4px 0 15px}
+.chip{font-size:11px;border:1px solid var(--line);padding:7px 9px;border-radius:999px;background:#10162a;color:var(--muted)}
 .hero{background:linear-gradient(135deg,#2a1036,#101a34);border:1px solid var(--line);border-radius:25px;padding:23px;box-shadow:0 8px 25px #b0507010}
-.hero h1{font-size:26px;line-height:1.28;margin:0 0 9px}.hero p,.muted{color:var(--muted);line-height:1.55}.card{background:linear-gradient(180deg,#131a30,#0e1426);border:1px solid var(--line);border-radius:22px;padding:18px;margin-top:13px}
-h2{font-size:19px;margin:0 0 12px}.btn{width:100%;border:0;border-radius:14px;padding:14px;font-weight:900;font-size:15px;cursor:pointer}.primary{color:#fff;background:linear-gradient(135deg,var(--p),var(--p2));box-shadow:0 0 24px #ff4f9a35}.secondary{background:linear-gradient(180deg,#131a30,#0e1426);border:1px solid var(--line);margin-top:8px}
-.screen{display:none}.screen.active{display:block}.progress{height:8px;background:#20263f;border-radius:99px;overflow:hidden;margin-bottom:18px}.progress span{height:100%;display:block;background:var(--p)}
-.q{font-size:20px;font-weight:900;line-height:1.45;margin-bottom:14px}.answers{display:grid;gap:8px}.answer{padding:13px;border:1px solid var(--line);border-radius:14px;background:#10162a;text-align:left;font-weight:700}.answer:hover{background:#10162a5f8}
-.temp{font-size:48px;font-weight:950;color:#ff72b2;text-align:center;text-shadow:0 0 18px #ff4f9a88}.bar{height:14px;background:#20263f;border-radius:99px;overflow:hidden}.bar span{height:100%;display:block;background:linear-gradient(90deg,var(--p),var(--p2),var(--cyan));box-shadow:0 0 14px #ff4f9a}
-.metrics{display:grid;grid-template-columns:1fr 1fr;gap:9px;margin-top:14px}.metric{padding:13px;border:1px solid var(--line);border-radius:15px}.metric b{display:block;font-size:20px;color:var(--p)}
-.counselors{display:grid;gap:11px}.person{display:flex;gap:13px;align-items:center;padding:13px;border:1px solid var(--line);border-radius:17px;cursor:pointer}.person:hover{background:#10162a7f9}.avatar{width:64px;height:64px;border-radius:16px;display:grid;place-items:center;overflow:hidden;position:relative;flex:none;background:linear-gradient(145deg,#39124e,#0d2448);border:1px solid #794eff;box-shadow:0 0 18px #7a4dff44}
-.avatar:before{content:"";position:absolute;width:40px;height:46px;border-radius:50% 50% 44% 44%;top:10px;background:linear-gradient(145deg,#eec4cf,#b97b9a);z-index:2;box-shadow:inset 0 -8px 12px #7a406b33}
+.hero h1{font-size:26px;line-height:1.28;margin:0 0 9px}
+.hero p,.muted{color:var(--muted);line-height:1.55}
+.card{background:linear-gradient(180deg,#131a30,#0e1426);border:1px solid var(--line);border-radius:22px;padding:18px;margin-top:13px}
+h2{font-size:19px;margin:0 0 12px}
+.btn{width:100%;border:0;border-radius:14px;padding:14px;font-weight:900;font-size:15px;cursor:pointer}
+.primary{color:#fff;background:linear-gradient(135deg,var(--p),var(--p2));box-shadow:0 0 24px #ff4f9a35}
+.secondary{color:var(--txt);background:linear-gradient(180deg,#131a30,#0e1426);border:1px solid var(--line);margin-top:8px}
+.screen{display:none}.screen.active{display:block}
+.progress{height:8px;background:#20263f;border-radius:99px;overflow:hidden;margin-bottom:18px}
+.progress span{height:100%;display:block;background:var(--p)}
+.q{font-size:20px;font-weight:900;line-height:1.45;margin-bottom:14px}
+.answers{display:grid;gap:8px}
+.answer{padding:13px;border:1px solid var(--line);border-radius:14px;background:#10162a;color:var(--txt);text-align:left;font-weight:700}
+.temp{font-size:48px;font-weight:950;color:#ff72b2;text-align:center;text-shadow:0 0 18px #ff4f9a88}
+.bar{height:14px;background:#20263f;border-radius:99px;overflow:hidden}.bar span{height:100%;display:block;background:linear-gradient(90deg,var(--p),var(--p2),var(--cyan));box-shadow:0 0 14px #ff4f9a}
+.metrics{display:grid;grid-template-columns:1fr 1fr;gap:9px;margin-top:14px}
+.metric{padding:13px;border:1px solid var(--line);border-radius:15px}.metric b{display:block;font-size:20px;color:var(--p)}
+.counselors{display:grid;gap:11px}.person{display:flex;gap:13px;align-items:center;padding:13px;border:1px solid var(--line);border-radius:17px;cursor:pointer}
+.avatar{width:64px;height:64px;border-radius:16px;display:grid;place-items:center;overflow:hidden;position:relative;flex:none;background:linear-gradient(145deg,#39124e,#0d2448);border:1px solid #794eff;box-shadow:0 0 18px #7a4dff44}
+.avatar:before{content:"";position:absolute;width:40px;height:46px;border-radius:50% 50% 44% 44%;top:10px;background:linear-gradient(145deg,#eec4cf,#b97b9a);z-index:2}
 .avatar:after{content:"";position:absolute;width:49px;height:49px;border-radius:45% 45% 38% 38%;top:4px;background:linear-gradient(#17233d,#090c18);z-index:1}
 .avatar .face{position:relative;z-index:3;margin-top:18px;width:7px;height:2px;border-radius:50%;background:#72e7ff;box-shadow:13px 0 #ff79cb,0 0 7px #72e7ff,13px 0 7px #ff79cb}
 .avatar.female2{background:linear-gradient(145deg,#4b143d,#1d1749);border-color:#ff4f9a}.avatar.male{background:linear-gradient(145deg,#102c47,#11162f);border-color:#46c8ff}.avatar.red{background:linear-gradient(145deg,#48131d,#1a1025);border-color:#ff4f6a}.avatar.green{background:linear-gradient(145deg,#123d37,#10182c);border-color:#54e6b2}.avatar.tarot{background:linear-gradient(145deg,#4a2a09,#22113f);border-color:#ffbf4f}.avatar.affair{background:linear-gradient(145deg,#4b0b1a,#1e1028);border-color:#ff375f}
 .person h3{margin:0 0 3px}.tag{font-size:11px;color:var(--p);font-weight:800}
-.chathead{display:flex;align-items:center;gap:10px;border-bottom:1px solid var(--line);padding-bottom:12px}.chatbox{height:390px;overflow:auto;padding:12px 2px}.bubble{max-width:84%;padding:11px 13px;border-radius:16px;margin:8px 0;line-height:1.55;white-space:pre-wrap}.ai{background:#171b34;border-bottom-left-radius:5px}.me{background:var(--p);color:#fff;margin-left:auto;border-bottom-right-radius:5px}
-.chatinput{display:flex;gap:7px}.chatinput textarea{flex:1;min-height:48px;max-height:100px;border:1px solid var(--line);border-radius:14px;padding:11px;font:inherit}.send{width:70px;border:0;border-radius:14px;background:var(--p);color:#fff;font-weight:900}
-.upload{border:2px dashed #ecc8d3;padding:16px;border-radius:15px;text-align:center;margin:12px 0}.upload input{width:100%}
+.chathead{display:flex;align-items:center;gap:10px;border-bottom:1px solid var(--line);padding-bottom:12px}
+.chatbox{height:390px;overflow:auto;padding:12px 2px}
+.bubble{max-width:84%;padding:11px 13px;border-radius:16px;margin:8px 0;line-height:1.55;white-space:pre-wrap}.ai{background:#171b34;border-bottom-left-radius:5px}.me{background:var(--p);color:#fff;margin-left:auto;border-bottom-right-radius:5px}
+.chatinput{display:flex;gap:7px}.chatinput textarea{flex:1;min-height:48px;max-height:100px;border:1px solid var(--line);border-radius:14px;padding:11px;background:#0b1122;color:var(--txt);font:inherit}.send{width:70px;border:0;border-radius:14px;background:var(--p);color:#fff;font-weight:900}
+.upload{border:2px dashed #5f6689;padding:16px;border-radius:15px;text-align:center;margin:12px 0}.upload input{width:100%;color:var(--txt)}
 .footer{text-align:center;font-size:12px;color:#7f7897;margin:28px 0}.footer b{color:#d8d1ef}
-nav{position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:min(540px,100%);display:grid;grid-template-columns:repeat(3,1fr);background:#10162afffee;backdrop-filter:blur(10px);border-top:1px solid var(--line);padding:8px 10px calc(8px + env(safe-area-inset-bottom))}
+nav{position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:min(540px,100%);display:grid;grid-template-columns:repeat(4,1fr);background:#10162af2;backdrop-filter:blur(10px);border-top:1px solid var(--line);padding:8px 10px calc(8px + env(safe-area-inset-bottom))}
 nav button{background:transparent;border:0;color:var(--muted);padding:7px;font-size:11px}nav strong{display:block;font-size:19px}
-</style><link rel="manifest" href="/manifest.json"><meta name="theme-color" content="#ff668b"></head>
-<body><div class="app">
+</style>
+<link rel="manifest" href="/manifest.json">
+<meta name="theme-color" content="#ff668b">
+</head>
+<body>
+<div class="app">
 <header><div class="brand">연애<b>온도</b></div><div class="chip">AI 연애상담센터</div></header>
 
 <section id="home" class="screen active">
-<div class="hero"><h1>내 연애,<br>감정 말고 온도로 보세요.</h1><p>심층검사와 대화 패턴을 분석한 뒤 나에게 맞는 AI 상담사와 계속 상담할 수 있어요.</p></div>
-<div class="card"><h2>🌡️ 심층 연애온도 검사</h2><p class="muted">연락, 만남, 상호성, 신뢰, 갈등, 미래계획을 종합해 현재 관계를 점검합니다.</p><button class="btn primary" onclick="startTest()">무료로 시작하기</button></div>
-<div class="card"><h2>📸 카톡 캡처 추가 분석</h2><p class="muted">검사 후 캡처를 추가하면 선택한 상담사가 대화 흐름까지 참고할 수 있어요.</p></div>
-<div class="card"><h2>💬 나만의 AI 상담사</h2><p class="muted">상담사마다 성격과 상담 방식이 달라요. 마음에 맞는 상담사를 고르면 검사 결과와 카톡 분석을 이어받아 1:1로 상담합니다.</p><div class="counselors" id="homeCounselors"></div></div>
-<div class="card"><h2>🔮 연애타로</h2><p class="muted">둘만의 관계가 궁금하다면 질문을 적고 카드 3장을 직접 뽑아보세요.</p><button class="btn secondary" onclick="openTarot()">연애타로 카드 뽑기</button></div></section>
+  <div class="hero"><h1>내 연애,<br>감정 말고 온도로 보세요.</h1><p>심층검사와 대화 패턴을 분석한 뒤 나에게 맞는 AI 상담사와 계속 상담할 수 있어요.</p></div>
+  <div class="card"><h2>🌡️ 심층 연애온도 검사</h2><p class="muted">연락, 만남, 상호성, 신뢰, 갈등, 미래계획을 종합해 현재 관계를 점검합니다.</p><button id="startBtn" type="button" class="btn primary">무료로 시작하기</button></div>
+  <div class="card"><h2>📸 카톡 캡처 추가 분석</h2><p class="muted">검사 후 캡처를 추가하면 선택한 상담사가 대화 흐름까지 참고할 수 있어요.</p></div>
+  <div class="card"><h2>💬 나만의 AI 상담사</h2><p class="muted">상담사마다 성격과 상담 방식이 달라요. 마음에 맞는 상담사를 고르면 검사 결과와 카톡 분석을 이어받아 1:1로 상담합니다.</p><div class="counselors" id="homeCounselors"></div></div>
+  <div class="card"><h2>🔮 연애타로</h2><p class="muted">둘만의 관계가 궁금하다면 질문을 적고 카드 3장을 직접 뽑아보세요.</p><button class="btn secondary" onclick="openTarot()">연애타로 카드 뽑기</button></div>
+</section>
 
-<section id="test" class="screen"><div class="card">
-<div class="progress"><span id="prog"></span></div><div id="q" class="q"></div><div id="answers" class="answers"></div>
-</div></section>
+<section id="test" class="screen"><div class="card"><div class="progress"><span id="prog"></span></div><div id="q" class="q"></div><div id="answers" class="answers"></div></div></section>
 
 <section id="result" class="screen">
-<div class="card"><h2>나의 심층 연애온도</h2><div class="temp"><span id="temp">--</span>°</div><div class="bar"><span id="tempbar"></span></div><p id="summary" class="muted"></p>
-<div class="metrics">
-<div class="metric">상호성<b id="m1">--</b></div><div class="metric">관심도<b id="m2">--</b></div>
-<div class="metric">안정성<b id="m3">--</b></div><div class="metric">미래가능성<b id="m4">--</b></div>
-</div></div>
-<div class="card"><h2>📸 카톡 캡처도 상담에 반영</h2><div class="upload"><input id="chatImage" type="file" accept="image/*"><div class="muted" style="font-size:12px;margin-top:7px">선택 사항 · 상담 시작 후 AI가 분석합니다.</div></div></div>
-<div class="card"><h2>상담사를 선택하세요</h2><div id="counselors" class="counselors"></div></div>
+  <div class="card"><h2>나의 심층 연애온도</h2><div class="temp"><span id="temp">--</span>°</div><div class="bar"><span id="tempbar"></span></div><p id="summary" class="muted"></p>
+    <div class="metrics"><div class="metric">상호성<b id="m1">--</b></div><div class="metric">관심도<b id="m2">--</b></div><div class="metric">안정성<b id="m3">--</b></div><div class="metric">미래가능성<b id="m4">--</b></div></div>
+  </div>
+  <div class="card"><h2>📸 카톡 캡처도 상담에 반영</h2><div class="upload"><input id="chatImage" type="file" accept="image/*"><div class="muted" style="font-size:12px;margin-top:7px">선택 사항 · 상담 시작 후 AI가 분석합니다.</div></div></div>
+  <div class="card"><h2>상담사를 선택하세요</h2><div id="counselors" class="counselors"></div></div>
 </section>
-
 
 <section id="tarot" class="screen">
-<div class="card">
-<h2>🔮 연애타로 상담</h2>
-<p class="muted">궁금한 둘의 관계를 질문하고 카드 3장을 뽑아보세요. 타로는 관계를 확정적으로 예언하기보다 현재 감정과 선택을 돌아보는 참고 도구로 사용합니다.</p>
-<textarea id="tarotQ" style="width:100%;min-height:88px;border:1px solid var(--line);border-radius:14px;padding:12px;background:#0b1122;color:var(--txt);font:inherit" placeholder="예: 그 사람과 저는 앞으로 더 가까워질 수 있을까요?"></textarea>
-<div id="tarotDeck" style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin:16px 0"></div>
-<button class="btn primary" onclick="drawTarot()">카드 3장 뽑기</button>
-<div id="tarotResult" style="margin-top:14px"></div>
-</div>
+  <div class="card">
+    <h2>🔮 연애타로 상담</h2>
+    <p class="muted">궁금한 둘의 관계를 질문하고 카드 3장을 뽑아보세요. 타로는 관계를 확정적으로 예언하기보다 현재 감정과 선택을 돌아보는 참고 도구로 사용합니다.</p>
+    <textarea id="tarotQ" style="width:100%;min-height:88px;border:1px solid var(--line);border-radius:14px;padding:12px;background:#0b1122;color:var(--txt);font:inherit" placeholder="예: 그 사람과 저는 앞으로 더 가까워질 수 있을까요?"></textarea>
+    <div id="tarotDeck" style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin:16px 0"></div>
+    <button class="btn primary" onclick="drawTarot()">카드 3장 뽑기</button>
+    <div id="tarotResult" style="margin-top:14px"></div>
+  </div>
 </section>
+
 <section id="chat" class="screen">
-<div class="card">
-<div class="chathead"><div class="avatar" id="chatAvatar"><span class="face"></span></div><div><b id="chatName"></b><div class="tag" id="chatTag"></div></div></div>
-<div id="chatbox" class="chatbox"></div>
-<div class="chatinput"><textarea id="msg" placeholder="상담사에게 편하게 이야기하세요"></textarea><button class="send" onclick="sendMsg()">전송</button></div>
-</div></section>
+  <div class="card">
+    <div class="chathead"><div class="avatar" id="chatAvatar"><span class="face"></span></div><div><b id="chatName"></b><div class="tag" id="chatTag"></div></div></div>
+    <div id="chatbox" class="chatbox"></div>
+    <div class="chatinput"><textarea id="msg" placeholder="상담사에게 편하게 이야기하세요"></textarea><button class="send" onclick="sendMsg()">전송</button></div>
+  </div>
+</section>
 
 <div class="footer">© 2026 <b>단비마음</b> · 연애온도</div>
 </div>
-<nav style="grid-template-columns:repeat(4,1fr)"><button onclick="show('home')"><strong>🏠</strong>홈</button><button onclick="show('result')"><strong>🌡️</strong>온도</button><button onclick="openTarot()"><strong>🔮</strong>타로</button><button onclick="resumeChat()"><strong>💬</strong>상담</button></nav>
+
+<nav>
+  <button onclick="show('home')"><strong>🏠</strong>홈</button>
+  <button onclick="show('result')"><strong>🌡️</strong>온도</button>
+  <button onclick="openTarot()"><strong>🔮</strong>타로</button>
+  <button onclick="resumeChat()"><strong>💬</strong>상담</button>
+</nav>
 
 <script>
-const $=x=>document.getElementById(x);
-const questions=[
+const $ = id => document.getElementById(id);
+
+const questions = [
 ["요즘 먼저 연락하는 쪽은 누구인가요?",[["상대가 더 자주",10],["비슷해요",8],["내가 더 자주",4],["거의 항상 나",1]]],
 ["상대의 평균 답장 패턴은?",[["대체로 빠르고 대화가 이어짐",10],["늦어도 내용은 성의 있음",8],["들쭉날쭉함",5],["단답·읽씹이 반복됨",1]]],
 ["최근 한 달 실제 만남은?",[["주 2회 이상",10],["주 1회 정도",8],["1~2번",5],["거의 없음",1]]],
@@ -88,30 +115,162 @@ const questions=[
 ["약속을 지키는 정도는?",[["거의 항상 지킴",10],["변경 시 미리 설명",8],["취소가 잦음",4],["반복적으로 일방 취소",1]]],
 ["지금 이 관계에서 내가 느끼는 안정감은?",[["편안하고 확신이 있음",10],["대체로 안정적",8],["자주 불안함",4],["늘 눈치를 보고 불안함",1]]]
 ];
-const people=[
-{id:"fact",name:"서윤",avatar:"<span class=\"face\"></span>",cls:"",tag:"팩트·현실형",desc:"희망고문 없이 행동과 패턴으로 판단",style:"따뜻하지만 매우 현실적이다. 사용자가 듣고 싶은 말보다 관찰 가능한 행동, 상호성, 일관성을 우선한다."},
-{id:"empathy",name:"하린",avatar:"<span class=\"face\"></span>",cls:"female2",tag:"공감·마음정리형",desc:"감정을 충분히 듣고 마음을 정리",style:"공감적이고 부드럽다. 감정을 인정하되 근거 없는 확신은 주지 않고 사용자가 자기 감정을 명료하게 이해하도록 돕는다."},
-{id:"psych",name:"도윤",avatar:"<span class=\"face\"></span>",cls:"male",tag:"상대심리 분석형",desc:"말투·거리두기·애착 패턴 중심 분석",style:"심리 패턴 분석에 강하다. 진단명이나 상대 마음을 단정하지 않고 가능한 가설과 근거를 구분해 설명한다."},
-{id:"reunion",name:"지안",avatar:"<span class=\"face\"></span>",cls:"red",tag:"이별·재회 전문",desc:"재회 가능성과 연락 전략을 냉정하게",style:"이별과 재회 상담 전문가다. 재회를 무조건 권하지 않고 이별 원인의 변화 가능성과 상대의 자발적 행동을 중점적으로 본다."},
-{id:"strategy",name:"이든",avatar:"<span class=\"face\"></span>",cls:"green",tag:"관계전략형",desc:"연락·만남·대화의 다음 행동 설계",style:"구체적인 실행 전략에 강하다. 조종이나 기만을 권하지 않고 건강한 경계와 명확한 커뮤니케이션을 중심으로 다음 행동을 제안한다."},
-{id:"tarot",name:"루미",avatar:"<span class=\"face\"></span>",cls:"tarot",tag:"연애타로 상담사",desc:"카드 3장으로 둘의 현재·감정·앞으로의 흐름 분석",style:"타로를 상징적 자기성찰 도구로 사용한다. 미래를 확정적으로 예언하지 않고 카드 의미를 현재 관계 맥락과 연결해 해석한다."},
-{id:"affair",name:"루나",avatar:"<span class=\"face\"></span>",cls:"affair",tag:"불륜·복잡한 관계 전문",desc:"기혼·삼각관계·비밀연애처럼 복잡한 관계를 현실적으로 상담",style:"도덕적 비난보다 현실적 위험, 경계, 정서적 비용, 상대의 행동과 책임을 분석한다. 기만이나 은폐를 돕지 않고 안전과 자율적 의사결정을 중시한다."}
+
+const people = [
+{id:"fact",name:"서윤",cls:"",tag:"팩트·현실형",desc:"희망고문 없이 행동과 패턴으로 판단"},
+{id:"empathy",name:"하린",cls:"female2",tag:"공감·마음정리형",desc:"감정을 충분히 듣고 마음을 정리"},
+{id:"psych",name:"도윤",cls:"male",tag:"상대심리 분석형",desc:"말투·거리두기·애착 패턴 중심 분석"},
+{id:"reunion",name:"지안",cls:"red",tag:"이별·재회 전문",desc:"재회 가능성과 연락 전략을 냉정하게"},
+{id:"strategy",name:"이든",cls:"green",tag:"관계전략형",desc:"연락·만남·대화의 다음 행동 설계"},
+{id:"tarot",name:"루미",cls:"tarot",tag:"연애타로 상담사",desc:"카드 3장으로 관계의 현재·감정·흐름 분석"},
+{id:"affair",name:"루나",cls:"affair",tag:"복잡한 관계 전문",desc:"기혼·삼각관계 등 복잡한 관계를 현실적으로 상담"}
 ];
-let qi=0,scores=[],report=null,current=null,history=[];
-function show(id){document.querySelectorAll('.screen').forEach(x=>x.classList.remove('active'));$(id).classList.add('active');scrollTo(0,0)}
-function startTest(){qi=0;scores=[];show('test');renderQ()}
-function renderQ(){let x=questions[qi];$('prog').style.width=((qi)/questions.length*100)+'%';$('q').textContent=(qi+1)+'. '+x[0];$('answers').innerHTML=x[1].map(a=>`<button class="answer" onclick="answer(${a[1]})">${a[0]}</button>`).join('')}
-function answer(v){scores.push(v);qi++;if(qi<questions.length)renderQ();else finish()}
-function finish(){let avg=scores.reduce((a,b)=>a+b,0)/scores.length;let t=Math.round(avg*10);let recipro=Math.round(((scores[0]+scores[3]+scores[4])/30)*100);let interest=Math.round(((scores[1]+scores[2]+scores[6])/30)*100);let stability=Math.round(((scores[5]+scores[8]+scores[9])/30)*100);let future=Math.round(((scores[7]+scores[8]+scores[6])/30)*100);report={temperature:t,reciprocity:recipro,interest,stability,future};localStorage.setItem('love_report',JSON.stringify(report));renderResult();show('result')}
-function renderResult(){report=report||JSON.parse(localStorage.getItem('love_report')||'null');if(!report){$('temp').textContent='--';return}$('temp').textContent=report.temperature;$('tempbar').style.width=report.temperature+'%';$('m1').textContent=report.reciprocity;$('m2').textContent=report.interest;$('m3').textContent=report.stability;$('m4').textContent=report.future;$('summary').textContent=report.temperature>=80?'현재는 상호성과 안정성이 높은 편입니다. 관계를 더 명확하게 발전시킬 수 있는 구간이에요.':report.temperature>=60?'긍정 신호가 더 많지만 몇 가지 불안정 요소도 함께 확인해야 합니다.':report.temperature>=40?'호감과 관계 투자가 애매하게 섞인 구간입니다. 말보다 반복 행동을 확인하세요.':'현재 관계의 상호성이 낮은 편입니다. 더 노력하기 전에 상대의 자발적인 행동을 확인할 필요가 있어요.'}
-$('counselors').innerHTML=people.map(p=>`<div class="person" onclick="choose(\'${p.id}\')"><div class="avatar ${p.cls||""}">${p.avatar}</div><div style="flex:1"><h3>${p.name} 상담사</h3><div class="tag">${p.tag}</div><div class="muted" style="font-size:12px">${p.desc}</div></div><div style="color:var(--p);
-if($('homeCounselors')) $('homeCounselors').innerHTML=people.slice(0,3).map(p=>`<div class="person" onclick="startTest()"><div class="avatar ${p.cls||''}">${p.avatar}</div><div><h3>${p.name} 상담사</h3><div class="tag">${p.tag}</div><div class="muted" style="font-size:12px">${p.desc}</div></div></div>`).join('');font-size:22px">›</div></div>`).join('');
-function choose(id){current=people.find(x=>x.id===id);localStorage.setItem('counselor',id);history=[];$('chatName').textContent=current.name+' 상담사';$('chatTag').textContent=current.tag;$('chatAvatar').className='avatar '+(current.cls||'');$('chatAvatar').innerHTML=current.avatar;show('chat');let r=report||JSON.parse(localStorage.getItem('love_report')||'null');addBubble('ai',`안녕하세요. ${current.name}이에요. ${r?`심층검사 결과는 ${r.temperature}°이고, 상호성 ${r.reciprocity} · 관심도 ${r.interest} · 안정성 ${r.stability} · 미래가능성 ${r.future}로 나왔어요.`:'먼저 상황을 이야기해 주세요.'}\n\n검사 결과만으로 결론내리지는 않을게요. 지금 가장 고민되는 일을 편하게 말씀해 주세요.`)}
-function addBubble(w,t){let d=document.createElement('div');d.className='bubble '+w;d.textContent=t;$('chatbox').appendChild(d);$('chatbox').scrollTop=$('chatbox').scrollHeight;history.push({role:w==='me'?'user':'assistant',content:t})}
-async function sendMsg(){let text=$('msg').value.trim();if(!text||!current)return;addBubble('me',text);$('msg').value='';let loading=document.createElement('div');loading.className='bubble ai';loading.textContent=current.name+' 상담사가 생각 중…';$('chatbox').appendChild(loading);
-try{let fd=new FormData();fd.append('message',text);fd.append('counselor',current.id);fd.append('report',JSON.stringify(report||{}));fd.append('history',JSON.stringify(history.slice(-12)));let f=$('chatImage')?.files?.[0];if(f)fd.append('image',f);let r=await fetch('/api/counsel',{method:'POST',body:fd});let data=await r.json();loading.remove();if(!r.ok)throw new Error(data.detail||data.error);addBubble('ai',data.reply)}catch(e){loading.remove();addBubble('ai','AI 연결이 아직 설정되지 않았어요. 서버에 OpenAI API 키를 등록하면 실제 상담이 시작됩니다.')}
+
+let qi=0, scores=[], report=null, current=null, history=[];
+
+function show(id){
+  document.querySelectorAll('.screen').forEach(x=>x.classList.remove('active'));
+  const el=$(id);
+  if(el) el.classList.add('active');
+  window.scrollTo({top:0,behavior:'smooth'});
 }
-function resumeChat(){let id=localStorage.getItem('counselor');if(id){current=people.find(x=>x.id===id);$('chatName').textContent=current.name+' 상담사';$('chatTag').textContent=current.tag;$('chatAvatar').className='avatar '+(current.cls||'');$('chatAvatar').innerHTML=current.avatar;show('chat')}else show('result')}
+
+function startTest(){
+  qi=0;
+  scores=[];
+  document.querySelectorAll('.screen').forEach(x=>x.classList.remove('active'));
+  const test=document.getElementById('test');
+  if(test) test.classList.add('active');
+  renderQ();
+  window.scrollTo(0,0);
+}
+
+function renderQ(){
+  const x=questions[qi];
+  $('prog').style.width=((qi)/questions.length*100)+'%';
+  $('q').textContent=(qi+1)+'. '+x[0];
+  $('answers').innerHTML=x[1].map(a=>`<button class="answer" onclick="answer(${a[1]})">${a[0]}</button>`).join('');
+}
+
+function answer(v){
+  scores.push(v);
+  qi++;
+  if(qi<questions.length) renderQ();
+  else finish();
+}
+
+function finish(){
+  const avg=scores.reduce((a,b)=>a+b,0)/scores.length;
+  const t=Math.round(avg*10);
+  const recipro=Math.round(((scores[0]+scores[3]+scores[4])/30)*100);
+  const interest=Math.round(((scores[1]+scores[2]+scores[6])/30)*100);
+  const stability=Math.round(((scores[5]+scores[8]+scores[9])/30)*100);
+  const future=Math.round(((scores[7]+scores[8]+scores[6])/30)*100);
+  report={temperature:t,reciprocity:recipro,interest,stability,future};
+  localStorage.setItem('love_report',JSON.stringify(report));
+  renderResult();
+  show('result');
+}
+
+function renderResult(){
+  report=report||JSON.parse(localStorage.getItem('love_report')||'null');
+  if(!report){ $('temp').textContent='--'; return; }
+  $('temp').textContent=report.temperature;
+  $('tempbar').style.width=report.temperature+'%';
+  $('m1').textContent=report.reciprocity;
+  $('m2').textContent=report.interest;
+  $('m3').textContent=report.stability;
+  $('m4').textContent=report.future;
+
+  let summary='';
+  if(report.temperature>=80) summary='현재는 상호성과 안정성이 높은 편입니다. 관계를 더 명확하게 발전시킬 수 있는 구간이에요.';
+  else if(report.temperature>=60) summary='긍정 신호가 더 많지만 몇 가지 불안정 요소도 함께 확인해야 합니다.';
+  else if(report.temperature>=40) summary='호감과 관계 투자가 애매하게 섞인 구간입니다. 말보다 반복 행동을 확인하세요.';
+  else summary='현재 관계의 상호성이 낮은 편입니다. 더 노력하기 전에 상대의 자발적인 행동을 확인할 필요가 있어요.';
+  $('summary').textContent=summary;
+
+  $('counselors').innerHTML=people.map(p=>`
+    <div class="person" onclick="choose('${p.id}')">
+      <div class="avatar ${p.cls||''}"><span class="face"></span></div>
+      <div style="flex:1"><h3>${p.name} 상담사</h3><div class="tag">${p.tag}</div><div class="muted" style="font-size:12px">${p.desc}</div></div>
+      <div style="color:var(--p);font-size:22px">›</div>
+    </div>`).join('');
+}
+
+function renderHomeCounselors(){
+  const el=$('homeCounselors');
+  if(!el) return;
+  el.innerHTML=people.slice(0,3).map(p=>`
+    <div class="person start-test-trigger" role="button" tabindex="0">
+      <div class="avatar ${p.cls||''}"><span class="face"></span></div>
+      <div><h3>${p.name} 상담사</h3><div class="tag">${p.tag}</div><div class="muted" style="font-size:12px">${p.desc}</div></div>
+    </div>`).join('');
+}
+
+function choose(id){
+  current=people.find(x=>x.id===id);
+  if(!current) return;
+  localStorage.setItem('counselor',id);
+  history=[];
+  $('chatName').textContent=current.name+' 상담사';
+  $('chatTag').textContent=current.tag;
+  $('chatAvatar').className='avatar '+(current.cls||'');
+  $('chatAvatar').innerHTML='<span class="face"></span>';
+  show('chat');
+  const r=report||JSON.parse(localStorage.getItem('love_report')||'null');
+  addBubble('ai',`안녕하세요. ${current.name}이에요.\n${r?`심층검사 결과는 ${r.temperature}°이고, 상호성 ${r.reciprocity} · 관심도 ${r.interest} · 안정성 ${r.stability} · 미래가능성 ${r.future}로 나왔어요.`:'먼저 상황을 이야기해 주세요.'}\n\n검사 결과만으로 결론내리지는 않을게요. 지금 가장 고민되는 일을 편하게 말씀해 주세요.`);
+}
+
+function addBubble(w,t){
+  const d=document.createElement('div');
+  d.className='bubble '+w;
+  d.textContent=t;
+  $('chatbox').appendChild(d);
+  $('chatbox').scrollTop=$('chatbox').scrollHeight;
+  history.push({role:w==='me'?'user':'assistant',content:t});
+}
+
+async function sendMsg(){
+  const text=$('msg').value.trim();
+  if(!text||!current) return;
+  addBubble('me',text);
+  $('msg').value='';
+  const loading=document.createElement('div');
+  loading.className='bubble ai';
+  loading.textContent=current.name+' 상담사가 생각 중…';
+  $('chatbox').appendChild(loading);
+
+  try{
+    const fd=new FormData();
+    fd.append('message',text);
+    fd.append('counselor',current.id);
+    fd.append('report',JSON.stringify(report||{}));
+    fd.append('history',JSON.stringify(history.slice(-12)));
+    const f=$('chatImage')?.files?.[0];
+    if(f) fd.append('image',f);
+    const r=await fetch('/api/counsel',{method:'POST',body:fd});
+    const data=await r.json();
+    loading.remove();
+    if(!r.ok) throw new Error(data.detail||data.error||'API 오류');
+    addBubble('ai',data.reply||'답변을 불러오지 못했습니다.');
+  }catch(e){
+    loading.remove();
+    addBubble('ai','AI 상담 연결에 문제가 있어요. 잠시 후 다시 시도해주세요.');
+  }
+}
+
+function resumeChat(){
+  const id=localStorage.getItem('counselor');
+  if(id){
+    current=people.find(x=>x.id===id);
+    if(!current){ show('result'); return; }
+    $('chatName').textContent=current.name+' 상담사';
+    $('chatTag').textContent=current.tag;
+    $('chatAvatar').className='avatar '+(current.cls||'');
+    $('chatAvatar').innerHTML='<span class="face"></span>';
+    show('chat');
+  }else show('result');
+}
 
 const tarotCards=[
 {name:"THE LOVERS",ko:"연인",meaning:"끌림·선택·관계의 합의"},
@@ -124,21 +283,56 @@ const tarotCards=[
 {name:"THE EMPRESS",ko:"여황제",meaning:"애정·돌봄·관계의 성장"},
 {name:"THE TOWER",ko:"탑",meaning:"갑작스러운 변화·기존 관계 구조의 붕괴"}
 ];
-function openTarot(){show('tarot'); $('tarotDeck').innerHTML=[1,2,3].map(i=>`<div style="aspect-ratio:0.68;border-radius:14px;border:1px solid #8c5bff;background:radial-gradient(circle,#331950,#0b1020);display:grid;place-items:center;box-shadow:0 0 18px #8c5bff33"><div style="font-size:30px">✦</div><small>연애온도 TAROT</small></div>`).join('');$('tarotResult').innerHTML=''}
-async function drawTarot(){
- const q=$('tarotQ').value.trim()||'우리 둘의 현재 관계와 앞으로의 흐름이 궁금해요.';
- const shuffled=[...tarotCards].sort(()=>Math.random()-.5).slice(0,3);
- $('tarotDeck').innerHTML=shuffled.map((c,i)=>`<div style="min-height:170px;border-radius:14px;border:1px solid #8c5bff;padding:12px;background:linear-gradient(#20133c,#0b1020);text-align:center;box-shadow:0 0 18px #8c5bff22"><div style="font-size:24px;margin-top:20px">${['♥','☾','✦'][i]}</div><b style="display:block;margin:12px 0 4px">${c.ko}</b><small>${c.name}</small></div>`).join('');
- $('tarotResult').innerHTML='<div class="card" style="margin-top:10px"><b>AI 타로 상담사가 해석 중…</b></div>';
- try{
-   const r=await fetch('/api/tarot',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({question:q,cards:shuffled,report:report||{}})});
-   const d=await r.json();
-   if(!r.ok) throw new Error(d.detail||d.error);
-   $('tarotResult').innerHTML=`<div class="card" style="margin-top:10px"><h2>타로 관계 해석</h2><div class="muted" style="white-space:pre-wrap">${d.reply}</div><button class="btn secondary" onclick="choose('tarot')">루미 상담사와 계속 상담</button></div>`;
- }catch(e){
-   $('tarotResult').innerHTML=`<div class="card" style="margin-top:10px"><b>뽑힌 카드</b><div class="muted">${shuffled.map(c=>c.ko+' · '+c.meaning).join('<br>')}</div><p class="muted">OpenAI API 키 연결 후 루미 상담사가 이 카드들을 관계 맥락과 함께 자세히 해석합니다.</p></div>`;
- }
+
+function openTarot(){
+  show('tarot');
+  $('tarotDeck').innerHTML=[1,2,3].map(()=>`<div style="aspect-ratio:.68;border-radius:14px;border:1px solid #8c5bff;background:radial-gradient(circle,#331950,#0b1020);display:grid;place-items:center"><div style="font-size:30px">✦</div><small>연애온도 TAROT</small></div>`).join('');
+  $('tarotResult').innerHTML='';
 }
 
+async function drawTarot(){
+  const q=$('tarotQ').value.trim()||'우리 둘의 현재 관계와 앞으로의 흐름이 궁금해요.';
+  const shuffled=[...tarotCards].sort(()=>Math.random()-.5).slice(0,3);
+  $('tarotDeck').innerHTML=shuffled.map((c,i)=>`<div style="min-height:170px;border-radius:14px;border:1px solid #8c5bff;padding:12px;background:linear-gradient(#20133c,#0b1020);text-align:center"><div style="font-size:24px;margin-top:20px">${['♥','☾','✦'][i]}</div><b style="display:block;margin:12px 0 4px">${c.ko}</b><small>${c.name}</small></div>`).join('');
+  $('tarotResult').innerHTML='<div class="card" style="margin-top:10px"><b>AI 타로 상담사가 해석 중…</b></div>';
+  try{
+    const r=await fetch('/api/tarot',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({question:q,cards:shuffled,report:report||{}})});
+    const d=await r.json();
+    if(!r.ok) throw new Error(d.detail||d.error||'API 오류');
+    $('tarotResult').innerHTML=`<div class="card" style="margin-top:10px"><h2>타로 관계 해석</h2><div class="muted" style="white-space:pre-wrap">${d.reply}</div><button class="btn secondary" onclick="choose('tarot')">루미 상담사와 계속 상담</button></div>`;
+  }catch(e){
+    $('tarotResult').innerHTML=`<div class="card" style="margin-top:10px"><b>뽑힌 카드</b><div class="muted">${shuffled.map(c=>c.ko+' · '+c.meaning).join('<br>')}</div><p class="muted">AI 연결을 확인한 뒤 다시 시도해주세요.</p></div>`;
+  }
+}
+
+renderHomeCounselors();
 renderResult();
-</script></body></html>
+
+function wireStartButtons(){
+  const startBtn=document.getElementById('startBtn');
+  if(startBtn){
+    startBtn.addEventListener('click', startTest);
+    startBtn.addEventListener('touchend', function(e){
+      e.preventDefault();
+      startTest();
+    }, {passive:false});
+  }
+  document.querySelectorAll('.start-test-trigger').forEach(el=>{
+    el.addEventListener('click', startTest);
+    el.addEventListener('keydown', e=>{
+      if(e.key==='Enter' || e.key===' '){
+        e.preventDefault();
+        startTest();
+      }
+    });
+  });
+}
+
+if(document.readyState==='loading'){
+  document.addEventListener('DOMContentLoaded', wireStartButtons);
+}else{
+  wireStartButtons();
+}
+</script>
+</body>
+</html>
