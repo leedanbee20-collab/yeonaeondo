@@ -1,0 +1,9 @@
+{
+  "name": "연애온도 - AI 연애상담센터",
+  "short_name": "연애온도",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#fff8fa",
+  "theme_color": "#ff668b",
+  "description": "단비마음 AI 연애상담 서비스"
+}
