@@ -4,6 +4,62 @@ import multer from "multer";
 import OpenAI from "openai";
 const app=express(), upload=multer({storage:multer.memoryStorage(),limits:{fileSize:10*1024*1024}});
 app.use(express.static("."));
+const KAKAO_REDIRECT_URI = "https://yeonaeondo.onrender.com/auth/kakao/callback";
+
+app.get("/auth/kakao", (req, res) => {
+  const kakaoKey = process.env.KAKAO_REST_API_KEY;
+  if (!kakaoKey) return res.status(500).send("Kakao API key is not configured.");
+
+  const url =
+    "https://kauth.kakao.com/oauth/authorize" +
+    "?client_id=" + encodeURIComponent(kakaoKey) +
+    "&redirect_uri=" + encodeURIComponent(KAKAO_REDIRECT_URI) +
+    "&response_type=code";
+
+  res.redirect(url);
+});
+
+app.get("/auth/kakao/callback", async (req, res) => {
+  try {
+    const code = req.query.code;
+    if (!code) return res.redirect("/?login=failed");
+
+    const tokenResponse = await fetch("https://kauth.kakao.com/oauth/token", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/x-www-form-urlencoded;charset=utf-8"
+      },
+      body: new URLSearchParams({
+        grant_type: "authorization_code",
+        client_id: process.env.KAKAO_REST_API_KEY,
+        redirect_uri: KAKAO_REDIRECT_URI,
+        code
+      })
+    });
+
+    const token = await tokenResponse.json();
+    if (!tokenResponse.ok || !token.access_token) {
+      return res.redirect("/?login=failed");
+    }
+
+    const userResponse = await fetch("https://kapi.kakao.com/v2/user/me", {
+      headers: {
+        Authorization: "Bearer " + token.access_token
+      }
+    });
+
+    const user = await userResponse.json();
+    if (!userResponse.ok || !user.id) {
+      return res.redirect("/?login=failed");
+    }
+
+    res.redirect("/?kakao=success");
+  } catch (e) {
+    console.error("Kakao login error:", e);
+    res.redirect("/?login=failed");
+  }
+});
+
 const styles={
 fact:"따뜻하지만 매우 현실적인 팩트형 상담사. 행동, 상호성, 일관성을 우선하고 희망고문하지 않는다.",
 empathy:"공감형 상담사. 감정을 충분히 인정하되 근거 없는 확신은 주지 않고 마음 정리를 돕는다.",
