@@ -307,29 +307,43 @@ async function drawTarot(){
 renderHomeCounselors();
 renderResult();
 
-function wireStartButtons(){
-  const startBtn=document.getElementById('startBtn');
-  if(startBtn){
-    startBtn.addEventListener('click', startTest);
-    startBtn.addEventListener('touchend', function(e){
-      e.preventDefault();
-      startTest();
-    }, {passive:false});
-  }
-  document.querySelectorAll('.start-test-trigger').forEach(el=>{
-    el.addEventListener('click', startTest);
-    el.addEventListener('keydown', e=>{
-      if(e.key==='Enter' || e.key===' '){
-        e.preventDefault();
-        startTest();
-      }
+function wireStartButtons() {
+  const startBtn = document.getElementById("startBtn");
+
+  if (startBtn) {
+    startBtn.addEventListener("click", function () {
+      window.location.href = "/auth/kakao";
     });
-  });
+  }
 }
 
-if(document.readyState==='loading'){
-  document.addEventListener('DOMContentLoaded', wireStartButtons);
-}else{
+const loginParams = new URLSearchParams(window.location.search);
+
+if (loginParams.get("kakao") === "success") {
+  localStorage.setItem("kakao_logged_in", "yes");
+
+  window.history.replaceState(
+    {},
+    document.title,
+    window.location.pathname
+  );
+
+  startTest();
+}
+
+if (loginParams.get("login") === "failed") {
+  alert("카카오 로그인에 실패했습니다. 다시 시도해주세요.");
+
+  window.history.replaceState(
+    {},
+    document.title,
+    window.location.pathname
+  );
+}
+
+if (document.readyState === "loading") {
+  document.addEventListener("DOMContentLoaded", wireStartButtons);
+} else {
   wireStartButtons();
 }
 </script>
