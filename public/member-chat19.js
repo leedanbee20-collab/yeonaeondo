@@ -19,3 +19,8 @@ const groundedCounsel19Before=sendChat;sendChat=async function(){const t=$('chat
 
 const conversationPanel19=$("chatlog").closest(".card");$("counselSession19").insertBefore(conversationPanel19,$("counselSession19").children[1]);
 const freshEntry19Before=chooseCounselorRole;chooseCounselorRole=function(id){$("chatInput").value="";freshEntry19Before(id)};
+let pendingCounselor19=null;
+const memberCounselEntry19Before=chooseCounselorRole;chooseCounselorRole=function(id){if(!currentMember){pendingCounselor19=id;memberGuard('chat');return}memberCounselEntry19Before(id)};
+const memberCounselList19Before=openChat;openChat=function(){if(!memberGuard('chat'))return;memberCounselList19Before()};
+const memberCounselSend19Before=sendChat;sendChat=async function(){if(!memberGuard('chat'))return;return memberCounselSend19Before()};
+const resumeCounsel19Before=submitAccount;submitAccount=async function(){await resumeCounsel19Before();if(currentMember&&pendingCounselor19){const id=pendingCounselor19;pendingCounselor19=null;chooseCounselorRole(id)}};
