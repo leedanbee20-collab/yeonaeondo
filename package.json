@@ -1,15 +1,16 @@
 {
-  "name": "yeonaeondo-ai-counseling",
-  "version": "4.0.0",
+  "name": "yeonaeondo78-webapp",
+  "version": "19.0.0",
   "private": true,
   "type": "module",
+  "engines": {
+    "node": ">=24"
+  },
   "scripts": {
-    "start": "node server.js"
+    "start": "node --env-file-if-exists=.env server.js",
+    "prestart": "node setup-local.mjs"
   },
   "dependencies": {
-    "dotenv": "^17.2.1",
-    "express": "^5.1.0",
-    "multer": "^2.0.2",
-    "openai": "^5.19.1"
+    "pg": "^8.13.0"
   }
 }

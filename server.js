@@ -1,122 +1,41 @@
-import "dotenv/config";
-import express from "express";
-import multer from "multer";
-import OpenAI from "openai";
-const app=express(), upload=multer({storage:multer.memoryStorage(),limits:{fileSize:10*1024*1024}});
-app.use(express.static("."));
-const KAKAO_REDIRECT_URI = "https://yeonaeondo.onrender.com/auth/kakao/callback";
+import {createMatchingAPI} from './matching-api.mjs';
+import {createCounselBookingsAPI} from './counsel-bookings.mjs';
+import {createDateAPI} from './date-api.mjs';
+import http from 'node:http';import fs from 'node:fs';import path from 'node:path';import crypto from 'node:crypto';import {promisify} from 'node:util';import {fileURLToPath} from 'node:url';
+const scrypt=promisify(crypto.scrypt),root=path.dirname(fileURLToPath(import.meta.url)),publicDir=path.join(root,'public');
+const port=Number(process.env.PORT||7819),production=process.env.NODE_ENV==='production',origin=process.env.PUBLIC_ORIGIN||`http://127.0.0.1:${port}`;
+if(production&&(!process.env.DATABASE_URL||!origin.startsWith('https://')))throw Error('Production requires DATABASE_URL and HTTPS PUBLIC_ORIGIN');
+let query;if(process.env.DATABASE_URL){const {default:pg}=await import('pg');const pool=new pg.Pool({connectionString:process.env.DATABASE_URL});query=async(sql,args=[])=>{let n=0;return (await pool.query(sql.replace(/\?/g,()=>'$'+(++n)),args)).rows}}else{const {DatabaseSync}=await import('node:sqlite');const dir=process.env.DATA_DIR||path.join(root,'data');fs.mkdirSync(dir,{recursive:true});const db=new DatabaseSync(path.join(dir,'members.sqlite'));query=async(sql,args=[])=>{const st=db.prepare(sql);return /^(SELECT|WITH)/i.test(sql.trim())?st.all(...args):(st.run(...args),[])}}
+for(const sql of ['CREATE TABLE IF NOT EXISTS members(id TEXT PRIMARY KEY,email TEXT UNIQUE,name TEXT NOT NULL,password_hash TEXT,kakao_id TEXT UNIQUE,created_at TEXT NOT NULL)','CREATE TABLE IF NOT EXISTS sessions(token_hash TEXT PRIMARY KEY,member_id TEXT NOT NULL,expires_at BIGINT NOT NULL)','CREATE TABLE IF NOT EXISTS reports(member_id TEXT PRIMARY KEY,payload TEXT NOT NULL,updated_at TEXT NOT NULL)'])await query(sql);
+const cookieName='ondo_session',hash=t=>crypto.createHash('sha256').update(t).digest('hex'),cookie=(req,key)=>{try{return decodeURIComponent((req.headers.cookie||'').split(';').map(x=>x.trim()).find(x=>x.startsWith(key+'='))?.slice(key.length+1)||'')}catch{return ''}};
+const json=(res,status,body)=>{res.writeHead(status,{'Content-Type':'application/json; charset=utf-8','Cache-Control':'no-store'});res.end(JSON.stringify(body))};
+const sessionCookie=(res,token)=>res.setHeader('Set-Cookie',`${cookieName}=${token}; HttpOnly; SameSite=Lax; Path=/; Max-Age=604800${origin.startsWith('https://')?'; Secure':''}`);
+async function member(req){const token=cookie(req,cookieName);if(!token)return null;const rows=await query('SELECT m.id,m.email,m.name FROM members m JOIN sessions s ON m.id=s.member_id WHERE s.token_hash=? AND s.expires_at>?',[hash(token),Date.now()]);return rows[0]?{...rows[0],plan:'free'}:null}
+async function login(res,id){const token=crypto.randomBytes(32).toString('hex');await query('DELETE FROM sessions WHERE expires_at<?',[Date.now()]);await query('INSERT INTO sessions(token_hash,member_id,expires_at) VALUES(?,?,?)',[hash(token),id,Date.now()+604800000]);sessionCookie(res,token)}
+async function body(req){let data='';for await(const c of req){data+=c;if(Buffer.byteLength(data)>65536)throw Error('Body too large')}return JSON.parse(data||'{}')}
+const attempts=new Map();function limit(req,kind,max){const key=req.socket.remoteAddress+'|'+kind,now=Date.now(),entry=attempts.get(key);if(!entry||entry.until<now){attempts.set(key,{n:1,until:now+600000});return false}entry.n++;return entry.n>max}
+const oauthStates=new Map();
+const mime={'.html':'text/html; charset=utf-8','.css':'text/css; charset=utf-8','.js':'text/javascript; charset=utf-8','.png':'image/png','.svg':'image/svg+xml','.json':'application/json; charset=utf-8','.webmanifest':'application/manifest+json','.txt':'text/plain; charset=utf-8'};
+const matchingAPI=await createMatchingAPI({query,member,body,json});
+const bookingAPI=await createCounselBookingsAPI({query,member,body,json});
+const dateAPI=await createDateAPI({query,member,body,json});
+const server=http.createServer(async(req,res)=>{try{res.setHeader('X-Content-Type-Options','nosniff');res.setHeader('Referrer-Policy','strict-origin-when-cross-origin');res.setHeader('X-Frame-Options','DENY');const u=new URL(req.url,origin),p=u.pathname;
+if(p==='/robots.txt'){res.setHeader('Content-Type','text/plain; charset=utf-8');return res.end(production?'User-agent: *\nAllow: /\nDisallow: /api/\nDisallow: /auth/\nSitemap: '+origin+'/sitemap.xml':'User-agent: *\nDisallow: /')}
+if(p==='/sitemap.xml'){res.setHeader('Content-Type','application/xml');return res.end('<?xml version="1.0" encoding="UTF-8"?><urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">'+['/',"/love-counsel","/reunion","/breakup","/tarot","/astrology","/dating-chat","/download"].map(x=>'<url><loc>'+origin+x+'</loc></url>').join('')+'</urlset>')}
+if(p==='/healthz')return json(res,200,{ok:true});
+if(req.method==='POST'&&req.headers.origin!==origin)return json(res,403,{error:'요청한 주소를 확인해주세요.'});
 
-app.get("/auth/kakao", (req, res) => {
-  const kakaoKey = process.env.KAKAO_REST_API_KEY;
-  if (!kakaoKey) return res.status(500).send("Kakao API key is not configured.");
-
-  const url =
-    "https://kauth.kakao.com/oauth/authorize" +
-    "?client_id=" + encodeURIComponent(kakaoKey) +
-    "&redirect_uri=" + encodeURIComponent(KAKAO_REDIRECT_URI) +
-    "&response_type=code";
-
-  res.redirect(url);
-});
-
-app.get("/auth/kakao/callback", async (req, res) => {
-  try {
-    const code = req.query.code;
-    if (!code) return res.redirect("/?login=failed");
-
-    const tokenResponse = await fetch("https://kauth.kakao.com/oauth/token", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/x-www-form-urlencoded;charset=utf-8"
-      },
-      body: new URLSearchParams({
-        grant_type: "authorization_code",
-        client_id: process.env.KAKAO_REST_API_KEY,
-        redirect_uri: KAKAO_REDIRECT_URI,
-        code
-      })
-    });
-
-    const token = await tokenResponse.json();
-    if (!tokenResponse.ok || !token.access_token) {
-      return res.redirect("/?login=failed");
-    }
-
-    const userResponse = await fetch("https://kapi.kakao.com/v2/user/me", {
-      headers: {
-        Authorization: "Bearer " + token.access_token
-      }
-    });
-
-    const user = await userResponse.json();
-    if (!userResponse.ok || !user.id) {
-      return res.redirect("/?login=failed");
-    }
-
-    res.redirect("/?kakao=success");
-  } catch (e) {
-    console.error("Kakao login error:", e);
-    res.redirect("/?login=failed");
-  }
-});
-
-const styles={
-fact:"따뜻하지만 매우 현실적인 팩트형 상담사. 행동, 상호성, 일관성을 우선하고 희망고문하지 않는다.",
-empathy:"공감형 상담사. 감정을 충분히 인정하되 근거 없는 확신은 주지 않고 마음 정리를 돕는다.",
-psych:"심리분석형 상담사. 애착, 회피, 말투와 거리 변화의 가능한 가설을 분석하되 진단하거나 마음을 단정하지 않는다.",
-reunion:"이별·재회 전문 상담사. 재회를 무조건 권하지 않고 이별 원인이 실제로 바뀔 수 있는지와 상대의 자발적 행동을 본다.",
-strategy:"관계전략형 상담사. 조종·기만·밀당 대신 건강한 경계, 연락, 만남, 대화의 구체적 다음 행동을 설계한다.",
-tarot:"연애타로 상담사. 타로를 상징적 자기성찰 도구로 활용하며 미래를 확정적으로 예언하지 않는다. 카드 의미를 실제 관계 행동과 함께 해석한다.",
-affair:"불륜·복잡한 관계 전문 상담사. 비난하지 않되 기만이나 은폐를 돕지 않는다. 현실적 위험, 경계, 책임, 정서적 비용, 사용자의 안전과 자율적 선택을 중심으로 상담한다."
-};
-app.post("/api/counsel",upload.single("image"),async(req,res)=>{
-try{
- if(!process.env.OPENAI_API_KEY)throw new Error("OPENAI_API_KEY가 등록되지 않았습니다.");
- const client=new OpenAI({apiKey:process.env.OPENAI_API_KEY});
- const counselor=req.body.counselor||"fact", report=req.body.report||"{}", message=req.body.message||"", history=req.body.history||"[]";
- let content=[{type:"input_text",text:`너는 단비마음의 '연애온도' AI 연애상담사다.
-상담사 성격: ${styles[counselor]||styles.fact}
-사용자의 심층 연애온도 검사: ${report}
-최근 상담 대화: ${history}
-현재 사용자 메시지: ${message}
-
-원칙:
-- 상대의 속마음을 사실처럼 단정하지 않는다.
-- 사용자가 듣고 싶은 말만 해주지 않는다.
-- 검사점수는 참고자료이며 대화 맥락과 실제 행동을 함께 본다.
-- 답장/행동 조언은 구체적으로 하되 상대를 조종하거나 기만하는 전략은 권하지 않는다.
-- 개인정보를 불필요하게 반복하지 않는다.
-- 폭력, 협박, 스토킹, 강압이 있으면 관계 유지 전략보다 안전을 우선한다.
-- 한국어 문자상담처럼 자연스럽고 너무 장황하지 않게 답한다.
-- 필요하면 마지막에 딱 한 가지 핵심 질문을 한다.`}];
- if(req.file)content.push({type:"input_image",image_url:`data:${req.file.mimetype};base64,${req.file.buffer.toString("base64")}`,detail:"high"});
- const response=await client.responses.create({model:process.env.OPENAI_MODEL||"gpt-5.6-luna",input:[{role:"user",content}]});
- res.json({reply:response.output_text});
-}catch(e){res.status(500).json({error:"AI 상담 오류",detail:e.message})}});
-
-app.use(express.json({limit:"2mb"}));
-app.post("/api/tarot",async(req,res)=>{
-try{
- if(!process.env.OPENAI_API_KEY)throw new Error("OPENAI_API_KEY가 등록되지 않았습니다.");
- const client=new OpenAI({apiKey:process.env.OPENAI_API_KEY});
- const {question="",cards=[],report={}}=req.body||{};
- const cardText=(cards||[]).map((c,i)=>`${i+1}. ${c.ko||c.name}: ${c.meaning||""}`).join("\n");
- const response=await client.responses.create({
-   model:process.env.OPENAI_MODEL||"gpt-5.6-luna",
-   input:[{role:"user",content:[{type:"input_text",text:`너는 단비마음의 연애온도 앱에 있는 '루미' 연애타로 상담사다.
-사용자 질문: ${question}
-심층 연애온도 결과: ${JSON.stringify(report)}
-사용자가 뽑은 카드:
-${cardText}
-
-3장은 각각 '현재 관계 / 상대의 감정 가능성 / 앞으로의 흐름' 관점으로 해석한다.
-타로는 상징적 자기성찰 도구로 설명하고 미래나 상대 마음을 확정적으로 예언하지 않는다.
-각 카드 의미를 현재 관계의 실제 행동과 연결해 설명한다.
-마지막에 사용자가 현실에서 확인해야 할 행동 신호 2~3개와 한 줄 조언을 제시한다.
-한국어로 따뜻하고 구체적으로 답한다.`}]}]
- });
- res.json({reply:response.output_text});
-}catch(e){res.status(500).json({error:"타로 상담 오류",detail:e.message})}
-});
-
-app.listen(process.env.PORT||10000,"0.0.0.0",()=>console.log("연애온도 상담센터 실행"));
+if(p==='/api/session'&&req.method==='GET')return json(res,200,{member:await member(req),kakaoConfigured:!!process.env.KAKAO_REST_API_KEY,aiEnabled:false});
+if(p==='/api/signup'&&req.method==='POST'){if(limit(req,'signup',12))return json(res,429,{error:'잠시 후 다시 시도해주세요.'});const b=await body(req),email=String(b.email||'').trim().toLowerCase(),name=String(b.name||'').trim(),pw=String(b.password||'');if(!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)||email.length>254||name.length<1||name.length>24||pw.length<10||pw.length>128)return json(res,400,{error:'이름·이메일·10자 이상의 비밀번호를 확인해주세요.'});const salt=crypto.randomBytes(16).toString('hex'),key=await scrypt(pw,salt,64),id=crypto.randomUUID();try{await query('INSERT INTO members(id,email,name,password_hash,created_at) VALUES(?,?,?,?,?)',[id,email,name,salt+':'+key.toString('hex'),new Date().toISOString()])}catch(e){if(/UNIQUE|duplicate/i.test(e.message))return json(res,409,{error:'가입할 수 없는 이메일입니다. 기존 계정 로그인을 확인해주세요.'});throw e}await login(res,id);return json(res,201,{member:{id,email,name,plan:'free'}})}
+if(p==='/api/login'&&req.method==='POST'){if(limit(req,'login',25))return json(res,429,{error:'잠시 후 다시 시도해주세요.'});const b=await body(req),email=String(b.email||'').trim().toLowerCase(),pw=String(b.password||'');if(pw.length>128||email.length>254)return json(res,400,{error:'입력한 정보를 확인해주세요.'});const rows=await query('SELECT * FROM members WHERE email=?',[email]),m=rows[0];if(!m?.password_hash)return json(res,401,{error:'이메일 또는 비밀번호를 확인해주세요.'});const [salt,key]=m.password_hash.split(':'),candidate=await scrypt(pw,salt,64);if(!crypto.timingSafeEqual(candidate,Buffer.from(key,'hex')))return json(res,401,{error:'이메일 또는 비밀번호를 확인해주세요.'});await login(res,m.id);return json(res,200,{member:{id:m.id,email:m.email,name:m.name,plan:'free'}})}
+if(p==='/api/logout'&&req.method==='POST'){const token=cookie(req,cookieName);if(token)await query('DELETE FROM sessions WHERE token_hash=?',[hash(token)]);res.setHeader('Set-Cookie',`${cookieName}=; HttpOnly; SameSite=Lax; Path=/; Max-Age=0${origin.startsWith('https://')?'; Secure':''}`);return json(res,200,{ok:true})}
+if(p==='/api/report'){const m=await member(req);if(!m)return json(res,401,{error:'회원가입 또는 로그인 후 이용해주세요.'});if(req.method==='GET'){const rows=await query('SELECT payload FROM reports WHERE member_id=?',[m.id]);return json(res,200,{report:rows[0]?JSON.parse(rows[0].payload):null})}if(req.method==='POST'){const b=await body(req);if(!b.answers||Object.entries(b.answers).some(([k,v])=>!/^\d+$/.test(k)||Number(k)>23||!Number.isInteger(v)||v<1||v>5))return json(res,400,{error:'검사 답변을 확인해주세요.'});await query('INSERT INTO reports(member_id,payload,updated_at) VALUES(?,?,?) ON CONFLICT(member_id) DO UPDATE SET payload=excluded.payload,updated_at=excluded.updated_at',[m.id,JSON.stringify({answers:b.answers}),new Date().toISOString()]);return json(res,200,{ok:true})}}
+if(p==='/auth/kakao'){if(!process.env.KAKAO_REST_API_KEY){res.writeHead(302,{Location:'/?auth=kakao-unconfigured'});return res.end()}const state=crypto.randomBytes(32).toString('hex');oauthStates.set(hash(state),Date.now()+600000);res.setHeader('Set-Cookie',`ondo_oauth=${state}; HttpOnly; SameSite=Lax; Path=/; Max-Age=600${origin.startsWith('https://')?'; Secure':''}`);const redirect=process.env.KAKAO_REDIRECT_URI||origin+'/auth/kakao/callback';res.writeHead(302,{Location:'https://kauth.kakao.com/oauth/authorize?'+new URLSearchParams({client_id:process.env.KAKAO_REST_API_KEY,redirect_uri:redirect,response_type:'code',state})});return res.end()}
+if(p==='/auth/kakao/callback'){const state=u.searchParams.get('state')||'',stored=cookie(req,'ondo_oauth');if(!state||state!==stored||!(oauthStates.get(hash(state))>Date.now())){res.writeHead(302,{Location:'/?auth=failed'});return res.end()}oauthStates.delete(hash(state));res.setHeader('Set-Cookie','ondo_oauth=; HttpOnly; SameSite=Lax; Path=/; Max-Age=0');const redirect=process.env.KAKAO_REDIRECT_URI||origin+'/auth/kakao/callback';const params={grant_type:'authorization_code',client_id:process.env.KAKAO_REST_API_KEY,redirect_uri:redirect,code:u.searchParams.get('code')||''};if(process.env.KAKAO_CLIENT_SECRET)params.client_secret=process.env.KAKAO_CLIENT_SECRET;const tr=await fetch('https://kauth.kakao.com/oauth/token',{method:'POST',headers:{'Content-Type':'application/x-www-form-urlencoded'},body:new URLSearchParams(params),signal:AbortSignal.timeout(10000)}),token=await tr.json();if(!tr.ok||!token.access_token)throw Error('Kakao token failed');const ur=await fetch('https://kapi.kakao.com/v2/user/me',{headers:{Authorization:'Bearer '+token.access_token},signal:AbortSignal.timeout(10000)}),user=await ur.json();if(!ur.ok||!user.id)throw Error('Kakao profile failed');const found=await query('SELECT id FROM members WHERE kakao_id=?',[String(user.id)]);let id=found[0]?.id;if(!id){id=crypto.randomUUID();await query('INSERT INTO members(id,name,kakao_id,created_at) VALUES(?,?,?,?)',[id,String(user.properties?.nickname||'연애온도 회원').slice(0,24),String(user.id),new Date().toISOString()])}await login(res,id);res.writeHead(302,{Location:'/?auth=success'});return res.end()}
+if(await matchingAPI(req,res,p,u))return;
+if(await bookingAPI(req,res,p))return;
+if(await dateAPI(req,res,p))return;
+if(p.startsWith('/api/'))return json(res,404,{error:'요청한 기능은 아직 연결되지 않았습니다.'});
+const file=path.resolve(publicDir,'.'+decodeURIComponent(p==='/'?'/index.html':(["/love-counsel","/reunion","/breakup","/tarot","/astrology","/dating-chat","/download"].includes(p)?p+'.html':p)));if(!file.startsWith(publicDir+path.sep)||!fs.existsSync(file)||!fs.statSync(file).isFile()){res.writeHead(404);return res.end('Not found')}const stat=fs.statSync(file),etag='W/"'+stat.size+'-'+Math.floor(stat.mtimeMs)+'"';res.setHeader('ETag',etag);res.setHeader('Cache-Control',/\.(png|svg)$/.test(file)?'public,max-age=604800':'no-cache');if(req.headers['if-none-match']===etag){res.writeHead(304);return res.end()}res.setHeader('Content-Type',mime[path.extname(file)]||'application/octet-stream');if(file.endsWith('.html')){if(!production)res.setHeader('X-Robots-Tag','noindex');return res.end(fs.readFileSync(file,'utf8').replaceAll('__SITE_ORIGIN__',origin))}fs.createReadStream(file).pipe(res);
+}catch(e){if(res.headersSent){res.end();return}if(req.url.startsWith('/auth/')){res.writeHead(302,{Location:'/?auth=failed'});res.end();return}json(res,e instanceof SyntaxError?400:500,{error:'요청을 처리하지 못했습니다. 잠시 후 다시 시도해주세요.'})}});
+server.listen(port,production?'0.0.0.0':'127.0.0.1',()=>console.log('Local review: '+origin));
