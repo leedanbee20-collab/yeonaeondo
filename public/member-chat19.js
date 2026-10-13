@@ -24,3 +24,5 @@ const memberCounselEntry19Before=chooseCounselorRole;chooseCounselorRole=functio
 const memberCounselList19Before=openChat;openChat=function(){if(!memberGuard('chat'))return;memberCounselList19Before()};
 const memberCounselSend19Before=sendChat;sendChat=async function(){if(!memberGuard('chat'))return;return memberCounselSend19Before()};
 const resumeCounsel19Before=submitAccount;submitAccount=async function(){await resumeCounsel19Before();if(currentMember&&pendingCounselor19){const id=pendingCounselor19;pendingCounselor19=null;chooseCounselorRole(id)}};
+const consentMode19Before=accountMode;accountMode=function(mode){consentMode19Before(mode);$('signupConsents19').classList.toggle('hidden',mode!=='signup')};
+const consentSubmit19Before=submitAccount;submitAccount=async function(){if(accountState==='signup'&&(!$('adultConsent19').checked||!$('privacyConsent19').checked||!$('overseasConsent19').checked)){$('accountError').textContent='이용약관과 개인정보 수집·이용 및 국외 저장 동의를 확인해주세요.';return}await consentSubmit19Before()};
