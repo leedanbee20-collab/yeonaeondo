@@ -1,0 +1,26 @@
+/* Horizontal Korean text and predictable responsive navigation. */
+html,body{writing-mode:horizontal-tb;text-orientation:mixed}
+body{word-break:keep-all;overflow-wrap:break-word}
+button,input,select,textarea{writing-mode:horizontal-tb;text-orientation:mixed}
+main,main>section,.card,.hero>*,.two>*,.phone19-layout>*,.character-layout>*{min-width:0;max-width:100%}
+.header19{display:grid;grid-template-columns:auto minmax(0,1fr) auto;align-items:center;width:100%;box-sizing:border-box}
+.brand19{grid-column:1;grid-row:1;min-width:max-content}
+.nav19{grid-column:2;grid-row:1;display:flex;min-width:0;width:100%;max-width:100%;flex-wrap:wrap;justify-content:center;box-sizing:border-box}
+.nav19 button{flex:0 0 auto;white-space:nowrap;word-break:keep-all;overflow-wrap:normal}
+.account19{grid-column:3;grid-row:1;justify-self:end;white-space:nowrap;min-width:max-content;margin:0}
+.auth-card,.auth-form,.auth-form>div{min-width:0;width:100%;box-sizing:border-box}
+.auth-card{max-width:620px;margin-inline:auto}
+.auth-form input:not([type=checkbox]){width:100%;min-width:0;max-width:100%;box-sizing:border-box}
+.check,.auth-form label.check{display:block;position:relative;padding:0 0 0 30px;margin:18px 0;min-width:0;line-height:1.75;word-break:keep-all;overflow-wrap:break-word;text-align:left}
+.check input[type=checkbox],.auth-form .check input[type=checkbox]{position:absolute;left:0;top:.3em;width:18px;height:18px;min-width:18px;max-width:18px;margin:0;padding:0;box-sizing:border-box}
+.check a,.check span{display:inline;writing-mode:horizontal-tb;word-break:keep-all}
+.auth-tabs{flex-wrap:wrap}.auth-tabs button{flex:0 0 auto;white-space:nowrap}
+.account-menu19{max-width:calc(100vw - 32px);box-sizing:border-box}.account-menu19 button{white-space:nowrap}
+.case-button19,.footer-goddesses19 strong,.footer-goddesses19 small{word-break:keep-all}
+@media(max-width:850px){
+.header19{grid-template-columns:minmax(0,1fr) auto;gap:10px 12px;padding:12px 16px}
+.brand19{grid-column:1;grid-row:1}.account19{grid-column:2;grid-row:1;padding:8px 0 8px 12px}
+.nav19{grid-column:1/-1;grid-row:2;justify-content:flex-start;flex-wrap:nowrap;overflow-x:auto;overscroll-behavior-x:contain;-webkit-overflow-scrolling:touch;padding:0 0 5px;gap:8px;scrollbar-width:thin}
+.nav19 button{padding:8px 12px}
+}
+@media(max-width:520px){main{padding-inline:16px}.card{padding:20px}.auth-card{padding:20px 16px}.brand-word19{font-size:22px}.brand-temperature19{font-size:23px}.account19{font-size:13px}.auth-card h2{font-size:27px}.case-buttons19{gap:10px 20px}.footer19-bottom .row{max-width:100%}.footer19-bottom button{max-width:100%;word-break:keep-all}}
