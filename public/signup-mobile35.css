@@ -1,0 +1,7 @@
+#account .auth-card,#account .auth-form,#basicFields23{min-width:0;max-width:100%;box-sizing:border-box}
+#basicFields23 summary{font-size:16px;line-height:1.5;font-weight:700;white-space:normal;word-break:keep-all;overflow-wrap:break-word;letter-spacing:-.3px}
+#account .auth-form label,#account .auth-form legend{font-size:14px;line-height:1.6;word-break:keep-all}
+#account .auth-form input:not([type=checkbox]),#account .auth-form select{width:100%;min-width:0;max-width:100%;box-sizing:border-box;font-size:16px}
+#account .muted,#account .auth-form small,.privacy-summary35{font-size:13px;line-height:1.7;white-space:normal;word-break:keep-all;overflow-wrap:break-word}
+.privacy-summary35{padding:14px;background:#f4eef9;border-radius:12px;margin:12px 0}.privacy-summary35 p{margin:8px 0}
+@media(max-width:480px){#account .auth-card{padding:20px 16px}#basicFields23 summary{font-size:15px}#account .auth-form{gap:12px}#account h2{font-size:24px}}

@@ -1,0 +1,10 @@
+(()=>{
+const fields=$('basicFields23'),age=$('basicAge23'),birth=$('basicBirth32');fields.querySelector('summary').textContent='인연 찾기 기본정보';
+for(const [id,text]of [['memberPhone25','휴대폰번호 · 필수'],['basicBirth32','생년월일 · 필수']])document.querySelector('label[for="'+id+'"]').textContent=text;
+const birthLabel=document.querySelector('label[for="basicBirth32"]'),ageLabel=document.querySelector('label[for="basicAge23"]');ageLabel.before(birthLabel,birth);age.readOnly=true;age.placeholder='생년월일을 선택하면 표시돼요';
+birth.onchange=()=>{if(!birth.value){age.value='';return}const today=new Intl.DateTimeFormat('sv-SE',{timeZone:'Asia/Seoul'}).format(new Date()),b=birth.value;age.value=Number(today.slice(0,4))-Number(b.slice(0,4))-(today.slice(5)<b.slice(5)?1:0)};
+const hiddenGender=[...$('basicGender23').options].find(o=>o.value==='비공개');hiddenGender?.remove();
+const optional=document.createElement('details');optional.innerHTML='<summary>추가 프로필 · 선택</summary>';const extras=$('basicCity32').parentElement;optional.append(extras);fields.append(optional);const styleLabel=document.querySelector('label[for="basicStyle23"]');optional.append(styleLabel,$('basicStyle23'),$('basicMarketing23').closest('label'));const phoneBox=$('memberPhone25').parentElement;$('basicJob23').after(phoneBox);
+const notice=document.createElement('details');notice.className='privacy-summary35';notice.innerHTML='<summary>개인정보 수집·이용 안내</summary><p>필수: 이름·이메일·비밀번호·성별·생년월일·만 나이·직업군·휴대폰번호</p><p>목적: 회원 식별·성인 연령 확인·인연 추천 서비스 운영·신청 관련 연락 및 계정 관리. 휴대폰 명의 본인확인은 아직 제공하지 않아요.</p><p>보유: 탈퇴 또는 삭제 요청 처리 시까지. 입력한 정보는 다른 회원에게 공개하지 않으며 본인과 권한이 있는 최고관리자만 확인할 수 있어요.</p><p>동의를 거부할 수 있으나 필수정보 수집에 동의하지 않으면 가입이 제한돼요. 광고 수신은 별도 선택입니다.</p><a href="/privacy.html" target="_blank" rel="noopener">개인정보 보호법에 따른 처리 안내 보기</a>';$('signupConsents19').prepend(notice);
+const prev=accountMode;accountMode=function(mode){prev(mode);const signup=mode==='signup';for(const id of ['memberName','basicGender23','basicJob23','memberPhone25','basicBirth32'])$(id).required=signup;age.required=signup};accountMode(accountState);
+})();
