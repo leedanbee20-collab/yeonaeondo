@@ -1,0 +1,6 @@
+(()=>{
+const android=/Android/i.test(navigator.userAgent),url='https://yeonaeondo.onrender.com/?install=1',intent='intent://yeonaeondo.onrender.com/?install=1#Intent;scheme=https;package=com.android.chrome;S.browser_fallback_url='+encodeURIComponent(url)+';end';
+const row=document.createElement('div');row.className='row';const chrome=document.createElement('a');chrome.textContent='① Chrome으로 열기';chrome.className='primary';chrome.style.cssText='padding:14px 20px;border-radius:12px;text-decoration:none;display:inline-block;background:#8460ad;color:white';chrome.href=android?intent:url;chrome.hidden=!android;const copy=document.createElement('button');copy.type='button';copy.textContent='사이트 주소 복사';copy.onclick=async()=>{try{await navigator.clipboard.writeText('https://yeonaeondo.onrender.com/');$('installMessage').textContent='주소를 복사했어요. Chrome 또는 Safari 주소창에 붙여넣어주세요.'}catch{$('installMessage').textContent='주소창에 yeonaeondo.onrender.com 을 입력해주세요.'}};row.append(chrome,copy);$('installAction').before(row);chrome.onclick=()=>{$('installMessage').textContent='Chrome이 열리지 않으면 인스타 화면의 점 3개 → 다른 브라우저로 열기를 눌러주세요.'};
+for(const button of document.querySelectorAll('button'))if(button.textContent.trim()==='다운로드')button.onclick=()=>{show('install');if(android)window.location.href=intent};
+if(new URLSearchParams(location.search).get('install')==='1')show('install');
+})();
