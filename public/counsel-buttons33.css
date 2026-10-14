@@ -1,0 +1,4 @@
+button.secret-booking33{background:linear-gradient(115deg,#7053a0,#a34d80);border:1px solid #8b598e;color:#fff;font-weight:700;border-radius:14px;padding:14px 22px;box-shadow:0 5px 16px #79508720;white-space:normal;word-break:keep-all;line-height:1.5;max-width:100%;min-width:0}
+button.secret-booking33:hover{background:linear-gradient(115deg,#62478d,#923e70)}
+button.secret-booking33:focus-visible{outline:3px solid #b984d4;outline-offset:4px}
+@media(max-width:480px){button.secret-booking33{padding:13px 18px;font-size:15px}}
