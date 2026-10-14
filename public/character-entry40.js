@@ -1,0 +1,9 @@
+(()=>{
+const panel=document.createElement('div');panel.className='card character-entry40';panel.innerHTML='<h3>내 캐릭터 설정하기</h3><p>남성 10종 · 여성 10종, 총 20가지 스타일 중 나와 닮은 캐릭터를 골라요.</p><div id="myCharacterPreview40"></div><button class="primary" id="myCharacterOpen40">내 캐릭터 설정하기 · 20종 보기</button><p id="characterSave40" role="status"></p>';$('duetEntry').prepend(panel);
+function paint(){const c=currentCharacter();$('myCharacterPreview40').innerHTML=portrait19(c)+'<strong>'+safeDuet(c.name)+'</strong><span>'+safeDuet(c.body+' · '+c.style)+'</span>'}
+async function restore(){if(!currentMember)return;try{const b=await apiRequest('/api/matching-profile');if(b.profile?.character&&fixedCharacters.some(c=>c.id===b.profile.character))chosenCharacter=b.profile.character;paint()}catch(e){$('characterSave40').textContent=e.message}}
+$('myCharacterOpen40').onclick=async()=>{if(!memberGuard('studio'))return;await restore();characterGender='all';$('characterBody').value='all';$('characterGlasses').value='all';filterCharacters('all');openStudio()};
+const openBefore=openDuet;openDuet=async function(){if(currentMember)await restore();await openBefore();paint()};
+const closeBefore=closeStudio;closeStudio=async function(){if(!currentMember){closeBefore();return}try{await apiRequest('/api/matching-character',{character:chosenCharacter});$('characterSave40').textContent=currentCharacter().name+' 캐릭터를 계정에 저장했어요.';paint();closeBefore()}catch(e){$('pickedTraits').textContent='저장하지 못했어요. '+e.message}};
+const openAccountButton=document.createElement('button');openAccountButton.textContent='내 캐릭터 설정하기';openAccountButton.onclick=()=>{$('myCharacterOpen40').click();closeAccountMenu19()};$('accountMenu19').querySelectorAll('button').forEach(b=>{if(b.textContent==='내 캐릭터 선택')b.remove()});$('accountMenu19').append(openAccountButton);paint();
+})();
