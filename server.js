@@ -1,3 +1,4 @@
+import {createOwnerAuth} from './owner-auth.mjs';
 import {createMemberDirectory} from './member-directory.mjs';
 import {createMatchingAPI} from './matching-api.mjs';
 import {createCounselBookingsAPI} from './counsel-bookings.mjs';
@@ -24,8 +25,9 @@ const attempts=new Map();function limit(req,kind,max){const key=req.socket.remot
 const oauthStates=new Map();
 const mime={'.html':'text/html; charset=utf-8','.css':'text/css; charset=utf-8','.js':'text/javascript; charset=utf-8','.jpg':'image/jpeg','.png':'image/png','.svg':'image/svg+xml','.json':'application/json; charset=utf-8','.webmanifest':'application/manifest+json','.txt':'text/plain; charset=utf-8'};
 const matchingAPI=await createMatchingAPI({query,member,body,json});
-const bookingAPI=await createCounselBookingsAPI({query,member,body,json});
-const directoryAPI=await createMemberDirectory({query,member,body,json});
+const ownerAuth=await createOwnerAuth({query,body,json,origin});
+const bookingAPI=await createCounselBookingsAPI({query,member,body,json,ownerAuthorize:ownerAuth.authorize});
+const directoryAPI=await createMemberDirectory({query,member,body,json,ownerAuthorize:ownerAuth.authorize});
 const dateAPI=await createDateAPI({query,member,body,json});
 const server=http.createServer(async(req,res)=>{try{res.setHeader('X-Content-Type-Options','nosniff');res.setHeader('Referrer-Policy','strict-origin-when-cross-origin');res.setHeader('X-Frame-Options','DENY');const u=new URL(req.url,origin),p=u.pathname;
 if(p==='/robots.txt'){res.setHeader('Content-Type','text/plain; charset=utf-8');return res.end(production?'User-agent: *\nAllow: /\nDisallow: /api/\nDisallow: /auth/\nSitemap: '+origin+'/sitemap.xml':'User-agent: *\nDisallow: /')}
@@ -34,6 +36,7 @@ if(p==='/healthz')return json(res,200,{ok:true});
 if(req.method==='POST'&&req.headers.origin!==origin)return json(res,403,{error:'요청한 주소를 확인해주세요.'});
 
 if(p==='/counsel-questions.json'&&!(await member(req)))return json(res,401,{error:'로그인 후 상담을 시작해주세요.'});
+if(await ownerAuth.handle(req,res,p))return;
 if(p==='/api/session'&&req.method==='GET')return json(res,200,{member:await member(req),kakaoConfigured:!!process.env.KAKAO_REST_API_KEY,aiEnabled:false});
 if(p==='/api/signup'&&req.method==='POST'){if(limit(req,'signup',12))return json(res,429,{error:'잠시 후 다시 시도해주세요.'});const b=await body(req),email=String(b.email||'').trim().toLowerCase(),name=String(b.name||'').trim(),pw=String(b.password||'');if(!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)||email.length>254||name.length<1||name.length>24||pw.length<10||pw.length>128)return json(res,400,{error:'이름·이메일·10자 이상의 비밀번호를 확인해주세요.'});if(!b.termsAccepted||!b.privacyAccepted||!b.overseasAccepted)return json(res,400,{error:'이용약관과 개인정보 수집·이용 및 국외 저장 동의를 확인해주세요.'});const contactPhone=directoryAPI.validatePhone(b.phone);const basics=cleanBasics(b.basics);const salt=crypto.randomBytes(16).toString('hex'),key=await scrypt(pw,salt,64),id=crypto.randomUUID();try{await query('INSERT INTO members(id,email,name,password_hash,created_at) VALUES(?,?,?,?,?)',[id,email,name,salt+':'+key.toString('hex'),new Date().toISOString()])}catch(e){if(/UNIQUE|duplicate/i.test(e.message))return json(res,409,{error:'가입할 수 없는 이메일입니다. 기존 계정 로그인을 확인해주세요.'});throw e}await query('INSERT INTO member_consents(member_id,version,created_at) VALUES(?,?,?)',[id,'2026-10-14',new Date().toISOString()]);await saveBasics(id,basics);await directoryAPI.saveContact(id,contactPhone);await login(res,id,b.remember===true);return json(res,201,{member:{id,email,name,plan:'free'}})}
 if(p==='/api/login'&&req.method==='POST'){if(limit(req,'login',25))return json(res,429,{error:'잠시 후 다시 시도해주세요.'});const b=await body(req),email=String(b.email||'').trim().toLowerCase(),pw=String(b.password||'');if(pw.length>128||email.length>254)return json(res,400,{error:'입력한 정보를 확인해주세요.'});const rows=await query('SELECT * FROM members WHERE email=?',[email]),m=rows[0];if(!m?.password_hash)return json(res,401,{error:'이메일 또는 비밀번호를 확인해주세요.'});const [salt,key]=m.password_hash.split(':'),candidate=await scrypt(pw,salt,64);if(!crypto.timingSafeEqual(candidate,Buffer.from(key,'hex')))return json(res,401,{error:'이메일 또는 비밀번호를 확인해주세요.'});await login(res,m.id,b.remember===true);return json(res,200,{member:{id:m.id,email:m.email,name:m.name,plan:'free'}})}
