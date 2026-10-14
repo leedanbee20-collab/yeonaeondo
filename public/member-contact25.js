@@ -1,0 +1,8 @@
+(() => {
+const field=document.createElement('div');field.innerHTML='<label for="memberPhone25">휴대폰번호 · 선택</label><input type="tel" id="memberPhone25" inputmode="tel" autocomplete="tel-national" placeholder="010-0000-0000" pattern="010[- ]?[0-9]{4}[- ]?[0-9]{4}"><p class="muted">상담·서비스 신청 관련 운영자 연락용이에요. 다른 회원에게 공개하지 않으며, 광고 수신 동의와는 별개예요. 현재 문자 인증 전입니다.</p>';$('basicFields23').append(field);
+const form=$('basicProfile23').querySelector('form'),edit=document.createElement('div');edit.innerHTML='<label for="editPhone25">휴대폰번호 · 선택</label><input type="tel" id="editPhone25" inputmode="tel" autocomplete="tel-national" placeholder="010-0000-0000"><p class="muted">운영자 연락용 · 다른 회원에게 비공개 · 문자 인증 전</p><button type="button" id="savePhone25">연락처 저장</button><p id="phoneStatus25" role="status"></p>';form.append(edit);
+const openBefore=openBasicProfile23;openBasicProfile23=async function(){await openBefore();if(!currentMember)return;try{$('editPhone25').value=(await apiRequest('/api/member-contact')).phone}catch(e){$('phoneStatus25').textContent=e.message}};
+$('savePhone25').onclick=async()=>{try{await apiRequest('/api/member-contact',{phone:$('editPhone25').value});$('phoneStatus25').textContent='연락처를 저장했어요. 문자 인증 전입니다.'}catch{$('phoneStatus25').textContent='010으로 시작하는 휴대폰번호 11자리를 확인해주세요.'}};
+for(const button of $('accountMenu19').querySelectorAll('button'))if(button.textContent==='내 기본정보')button.onclick=()=>openBasicProfile23();
+const logoutBefore=memberAccount;memberAccount=async function(){await logoutBefore();if(!currentMember){$('memberPhone25').value='';$('editPhone25').value='';$('phoneStatus25').textContent=''}};
+})();
