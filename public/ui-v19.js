@@ -51,4 +51,4 @@ const counselEnter19Before=chooseCounselorRole;
 chooseCounselorRole=function(id){if(!counselorFirstQuestion19[id])return;counselEnter19Before(id);show('chat');$('counselorRoles').classList.add('hidden');$('counselSession19').classList.remove('hidden');$('chatlog').innerHTML='';const c=counselorsV18.find(x=>x.id===id);bubble(c.name,counselorFirstQuestion19[id]);$('chatInput').placeholder='편하게 이야기해줘';$('chatInput').focus();};
 openChat=function(){show('chat');$('counselorRoles').classList.remove('hidden');$('counselSession19').classList.add('hidden');};
 
-const libraryMemberStatus19Before=renderMemberStatus;renderMemberStatus=function(){libraryMemberStatus19Before();libraryPromise=currentMember?fetch("/counsel-questions.json").then(r=>r.ok?r.json():[]).catch(()=>[]):Promise.resolve([])};renderMemberStatus();
+const libraryMemberStatus19Before=renderMemberStatus;renderMemberStatus=function(){libraryMemberStatus19Before();libraryPromise=currentMember?Promise.resolve([]):Promise.resolve([])};renderMemberStatus();

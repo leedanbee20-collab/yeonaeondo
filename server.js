@@ -1,3 +1,4 @@
+import {createProtection} from './protection45.mjs';
 import {createDatePresence} from './date-presence43.mjs';
 import {createMatchSearch} from './match-search31.mjs';
 import {createOwnerAuth} from './owner-auth.mjs';
@@ -33,13 +34,19 @@ const ownerAuth=await createOwnerAuth({query,body,json,origin});
 const bookingAPI=await createCounselBookingsAPI({query,member,body,json,ownerAuthorize:ownerAuth.authorize});
 const directoryAPI=await createMemberDirectory({query,member,body,json,ownerAuthorize:ownerAuth.authorize});
 const dateAPI=await createDateAPI({query,member,body,json});
+const protect=createProtection();
+const counselBank=JSON.parse(fs.readFileSync(path.join(root,'private/counsel-questions.json'),'utf8'));
 const server=http.createServer(async(req,res)=>{try{res.setHeader('X-Content-Type-Options','nosniff');res.setHeader('Referrer-Policy','strict-origin-when-cross-origin');res.setHeader('X-Frame-Options','DENY');const u=new URL(req.url,origin),p=u.pathname;
+if(protect(req,res,p))return;
 if(p==='/robots.txt'){res.setHeader('Content-Type','text/plain; charset=utf-8');return res.end(production?'User-agent: *\nAllow: /\nDisallow: /api/\nDisallow: /auth/\nSitemap: '+origin+'/sitemap.xml':'User-agent: *\nDisallow: /')}
 if(p==='/sitemap.xml'){res.setHeader('Content-Type','application/xml');return res.end('<?xml version="1.0" encoding="UTF-8"?><urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">'+['/',"/love-counsel","/reunion","/breakup","/tarot","/astrology","/dating-chat","/download"].map(x=>'<url><loc>'+origin+x+'</loc></url>').join('')+'</urlset>')}
 if(p==='/healthz')return json(res,200,{ok:true});
 if(req.method==='POST'&&req.headers.origin!==origin)return json(res,403,{error:'요청한 주소를 확인해주세요.'});
+if(p==='/api/counsel-answer'&&req.method==='POST'){const m=await member(req);if(!m)return json(res,401,{error:'로그인 후 상담을 시작해주세요.'});if(protect.account(res,m.id,'counsel',40,60000))return;const b=await body(req);if(typeof b.message!=='string'||!b.message.trim()||b.message.length>2000)return json(res,400,{error:'질문은 1~2000자로 입력해주세요.'});let answer=null,score=0;for(const q of counselBank){const n=q.keywords.reduce((sum,k)=>sum+(b.message.includes(k)?k.length+1:0),0)+(q.caseId===b.caseId?2:0)+(q.topicId===b.topicId?1:0);if(n>score){score=n;answer=q}}return json(res,200,{answer:answer?{keywords:[],caseId:answer.caseId,topicId:answer.topicId,empathy:answer.empathy,near:answer.near,followup:answer.followup}:null})}
+if(p==='/api/matches'){const m=await member(req);if(m&&protect.account(res,m.id,'matches',30,60000))return;}
 
-if(p==='/counsel-questions.json'&&!(await member(req)))return json(res,401,{error:'로그인 후 상담을 시작해주세요.'});
+
+if(p==='/counsel-questions.json')return json(res,404,{error:'Not found'});
 if(await ownerAuth.handle(req,res,p))return;
 if(p==='/api/session'&&req.method==='GET')return json(res,200,{member:await member(req),kakaoConfigured:!!process.env.KAKAO_REST_API_KEY,aiEnabled:false});
 if(p==='/api/signup'&&req.method==='POST'){if(limit(req,'signup',12))return json(res,429,{error:'잠시 후 다시 시도해주세요.'});const b=await body(req),email=String(b.email||'').trim().toLowerCase(),name=String(b.name||'').trim(),pw=String(b.password||'');if(!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)||email.length>254||name.length<1||name.length>24||pw.length<10||pw.length>128)return json(res,400,{error:'이름·이메일·10자 이상의 비밀번호를 확인해주세요.'});if(!b.termsAccepted||!b.privacyAccepted||!b.overseasAccepted)return json(res,400,{error:'이용약관과 개인정보 수집·이용 및 국외 저장 동의를 확인해주세요.'});const contactPhone=directoryAPI.validatePhone(b.phone);const basics=cleanBasics(b.basics);if(!contactPhone||!['남성','여성'].includes(basics.gender)||basics.age===null||!basics.occupation||(!basics.details.birthDate||!basics.details.city||!basics.details.dong))return json(res,400,{error:'실명·성별·생년월일·직업군·휴대폰번호·거주 시/동을 모두 입력해주세요.'});const today=new Date(Date.now()+9*3600000).toISOString().slice(0,10),birth=basics.details.birthDate,actualAge=Number(today.slice(0,4))-Number(birth.slice(0,4))-(today.slice(5)<birth.slice(5)?1:0);if(basics.age!==actualAge)return json(res,400,{error:'생년월일과 만 나이를 확인해주세요.'});const salt=crypto.randomBytes(16).toString('hex'),key=await scrypt(pw,salt,64),id=crypto.randomUUID();try{await query('INSERT INTO members(id,email,name,password_hash,created_at) VALUES(?,?,?,?,?)',[id,email,name,salt+':'+key.toString('hex'),new Date().toISOString()])}catch(e){if(/UNIQUE|duplicate/i.test(e.message))return json(res,409,{error:'가입할 수 없는 이메일입니다. 기존 계정 로그인을 확인해주세요.'});throw e}await query('INSERT INTO member_consents(member_id,version,created_at) VALUES(?,?,?)',[id,'2026-10-14',new Date().toISOString()]);await saveBasics(id,basics);await directoryAPI.saveContact(id,contactPhone);await login(res,id,b.remember===true);return json(res,201,{member:{id,email,name,plan:'free'}})}
